@@ -1,67 +1,87 @@
-﻿//Aula 14 - Tratamento de Arquivos
+﻿using Micro_editor_de_texto___Arquivo;
 
-using Microsoft.Win32.SafeHandles;
+List<Product> products = new();
 
-string path = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\Dados\\";
-/*
- * Na linha acima está o modelo de endereço do arquivo, mas que vai ser possível de rodar em computadores diferentes.
- * 
- * O @ demonstra que o que está estrito tem caractere especial; aqui será escrito o caminho do arquivo
- */
+string path = @"C:\Users\Paola\Documents\Aulas\Projetos_C#\Micro editor de texto - Arquivo\Micro editor de texto - Arquivo\bin\Debug\net6.0";
+string file = "products.txt";
 
-string file = "arquivo.txt"; //nome e extensão do arquvo
+Console.WriteLine(">>>> CADASTRO DE PRODUTOS <<<<");
 
-if (!Directory.Exists(path))
-    Directory.CreateDirectory(path);
-
-if (File.Exists (path+file))
+#region createProduct
+Product CreateProduct()
 {
-    StreamReader sr = new StreamReader(path+file);
-    string s = sr.ReadToEnd();
-    Console.Clear();
-    Console.WriteLine(s);
-    sr.Close();
+    Console.WriteLine("Informe um id:");
+    int id = int.Parse(Console.ReadLine());
 
-    s += "\n";
-    s += Console.ReadLine();
+    Console.WriteLine("Informe a descrição do produto: ");
+    string description = Console.ReadLine();
 
-    StreamWriter sw = new(path + file);
-    sw.WriteLine(s);
-    sw.Close();
+    Console.WriteLine("Informe o preço do produto:");
+    double price = double.Parse(Console.ReadLine());
 
-    Console.Clear();
-    Console.WriteLine("Conteúdo do arquivo:");
-    StreamReader sr2 = new(path + file);
-    Console.WriteLine(sr2.ReadToEnd());
-    sr2.Close();
+    Console.WriteLine("Informe a quantidade disponível:");
+    int quantity = int.Parse(Console.ReadLine());
 
-    File.ReadLines(path + file).Skip(2).Take(1).First();
-    File.ReadLines(path + file).ElementAt(2);
+    return new Product (id, description, price, quantity);
+}
+#endregion
+
+#region showAll
+/*
+ * Na função com void, não tem retorno.
+ * O "retorno" está no Console.WriteLine();
+ */
+void ShowAll(List<Product> receivedlist)
+{
+    foreach (var product in receivedlist)
+    {
+        Console.WriteLine(product.ToString());
+    }
+}
+#endregion
+
+void SaveFile(List<Product> list, string pathFile, string fileCreated)
+{
+    if (!Directory.Exists(pathFile)) //Se o meu diretório não existe no meu caminho...
+    {
+        // ...tem que criar
+        Directory.CreateDirectory(pathFile);
+    }
+    if (!File.Exists(pathFile + fileCreated))
+    {
+        File.Create(pathFile + fileCreated);
+    }
+
+    StreamWriter sw = new(pathFile + fileCreated);
+
+    foreach (var item in list)
+    {
+        sw.WriteLine(item.ToString());
+    }
 }
 
-/**
-if(!Directory.Exists(path+file)) //Vai verificar se o diretório existe ou não. Se não existir, ele pula para o próximo diretório. Se existir, pula para as próximas linhas de código
-    Directory.CreateDirectory(path);
+List<Product> LoadFile(string p, string f) //
+{
+    if (CheckIfExits(p, f))
+    {
+        StreamReader sr = new(p + f);
+        List<Product> listProducts = new();
 
-StreamWriter sw = new(path + file); //Tem que passar como parâmetro o caminho e o nome do arquivo
+        foreach (var linha in File.ReadAllLines(path + file))
+        {
+            Console.Write(linha);
+        }
+    }
+}
 
-Console.WriteLine("Informe seu nome:");
-string s = Console.ReadLine();
+//Execução do Programa
+products.Add(CreateProduct());
 
-Console.WriteLine("Informe seu email: ");
-s = Console.ReadLine();
+Console.WriteLine();
+products.Add (CreateProduct());
 
-sw.WriteLine(s);
-sw.Close();
+Console.WriteLine();
+ShowAll(products);
 
-StreamReader sr = new(path + file);
-
-Console.Clear();
-Console.WriteLine(sr.ReadToEnd());
-
-/*
- * ReadLine() - retorna o que foi digitado, mas só 1 coisa
- * ReadToEnd() - retorna e imprime tudo que está no arquivo
- */
-
-//sr.Close();
+Console.WriteLine();
+SaveFile(products, path, file);
